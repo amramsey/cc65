@@ -1,4 +1,4 @@
-<!doctype linuxdoc system>      <!-- -*- text-mode -*- -->
+<!doctype linuxdoc system>
 
 <article>
 <title>cc65 function reference
@@ -213,8 +213,8 @@ function.
 <!-- <item><ref id="cbm_save" name="cbm_save"> -->
 <!-- <item><ref id="cbm_write" name="cbm_write"> -->
 <!-- <item><ref id="get_tv" name="get_tv"> -->
-<item><ref id="waitvsync" name="waitvsync">
 <item><ref id="kbrepeat" name="kbrepeat">
+<item><ref id="waitvsync" name="waitvsync">
 </itemize>
 
 (incomplete)
@@ -243,16 +243,19 @@ function.
 <sect1><tt/cc65.h/<label id="cc65.h"><p>
 
 <itemize>
-<!-- <item><ref id="cc65_cos" name="cc65_cos"> -->
-<!-- <item><ref id="cc65_idiv32by16r16" name="cc65_idiv32by16r16"> -->
-<!-- <item><ref id="cc65_imul16x16r32" name="cc65_imul16x16r32"> -->
-<!-- <item><ref id="cc65_imul8x8r16" name="cc65_imul8x8r16"> -->
-<!-- <item><ref id="cc65_sin" name="cc65_sin"> -->
-<!-- <item><ref id="cc65_udiv32by16r16" name="cc65_udiv32by16r16"> -->
-<!-- <item><ref id="cc65_umul16x16r32" name="cc65_umul16x16r32"> -->
-<!-- <item><ref id="cc65_umul16x8r32" name="cc65_umul16x8r32"> -->
-<!-- <item><ref id="cc65_umul8x8r16" name="cc65_umul8x8r16"> -->
+
+<!-- <item><ref id="_cos" name="_cos"> -->
+<!-- <item><ref id="idiv32by16r16" name="idiv32by16r16"> -->
+<!-- <item><ref id="imul16x16r32" name="imul16x16r32"> -->
+<!-- <item><ref id="imul8x8r16" name="imul8x8r16"> -->
+<!-- <item><ref id="_sin" name="_sin"> -->
+<!-- <item><ref id="udiv32by16r16" name="udiv32by16r16"> -->
+<!-- <item><ref id="umul16x16r32" name="umul16x16r32"> -->
+<!-- <item><ref id="umul16x8r32" name="umul16x8r32"> -->
+<!-- <item><ref id="umul8x8r16" name="umul8x8r16"> -->
 <item><ref id="doesclrscrafterexit" name="doesclrscrafterexit">
+<item><ref id="mul20" name="mul20">
+<item><ref id="mul40" name="mul40">
 </itemize>
 
 (incomplete)
@@ -313,6 +316,20 @@ function.
 <item><ref id="tolower" name="tolower">
 <item><ref id="toupper" name="toupper">
 </itemize>
+
+
+<sect1><tt/cx16.h/<label id="cx16.h"><p>
+
+<itemize>
+<!-- <item><ref id="get_ostype" name="get_ostype"> -->
+<!-- <item><ref id="get_tv" name="get_tv"> -->
+<!-- <item><ref id="set_tv" name="set_tv"> -->
+<item><ref id="videomode" name="videomode">
+<!-- <item><ref id="vpeek" name="vpeek"> -->
+<!-- <item><ref id="vpoke" name="vpoke"> -->
+</itemize>
+
+(incomplete)
 
 
 <sect1><tt/dbg.h/<label id="dbg.h"><p>
@@ -577,7 +594,6 @@ communication, see also <tt>testcode/lib/ser-test.c</tt>.
 <item><ref id="raise" name="raise">
 <item><ref id="signal" name="signal">
 </itemize>
-
 
 <sect1><tt/stdarg.h/<label id="stdarg.h"><p>
 
@@ -1020,7 +1036,6 @@ It returns 1 if it does.
 </descrip>
 </quote>
 
-
 <sect1>_poserror<label id="_poserror"><p>
 
 <quote>
@@ -1315,16 +1330,16 @@ disabled.
 
 <quote>
 <descrip>
-<tag/Function/Terminates a program abnormally.
+<tag/Function/Terminate a program abnormally.
 <tag/Header/<tt/<ref id="stdlib.h" name="stdlib.h">/
 <tag/Declaration/<tt/void abort (void);/
-<tag/Description/<tt/abort/ raises <tt/SIGABRT/, writes a termination message
-on stderr, then terminates the program with an exit code of 3.
+<tag/Description/<tt/abort()/ raises <tt/SIGABRT/, writes a termination message
+on <tt/stderr/, then terminates the program with an exit code of 3.
 <tag/Availability/ISO 9899
 <tag/See also/
 <ref id="assert" name="assert">,
 <ref id="exit" name="exit">,
-<ref id="raise" name="raise">
+<ref id="signal" name="signal">
 <tag/Example/None.
 </descrip>
 </quote>
@@ -1356,19 +1371,20 @@ used in presence of a prototype.
 
 <quote>
 <descrip>
-<tag/Function/Test a condition and possibly abort.
+<tag/Function/Test a condition, and possibly abort.
 <tag/Header/<tt/<ref id="assert.h" name="assert.h">/
 <tag/Declaration/<tt/void assert (int cond);/
-<tag/Description/<tt/assert/ is a macro that expands to a <tt/id/
-statement. If the condition evaluates t zero (false), assert prints a message
-on stderr and aborts the program.
+<tag/Description/<tt/assert()/ is a macro that expands to an <tt/if/ statement.
+If the condition evaluates to zero (false), <tt/assert()/ raises <tt/SIGABRT/,
+prints a message on <tt/stderr/, then exits the program with an exit code of 2.
 <tag/Notes/<itemize>
 <item>The function is actually a macro.
 </itemize>
 <tag/Availability/ISO 9899
 <tag/See also/
 <ref id="abort" name="abort">,
-<ref id="exit" name="exit">
+<ref id="exit" name="exit">,
+<ref id="signal" name="signal">
 <tag/Example/None.
 </descrip>
 </quote>
@@ -5558,6 +5574,29 @@ memory allocated for the driver.
 </descrip>
 </quote>
 
+<sect1>mul20<label id="mul20"><p>
+
+<quote>
+<descrip>
+<tag/Function/Multiplies argument by 20.
+<tag/Header/<tt/<ref id="cc65.h" name="cc65.h">/
+<tag/Declaration/<tt/unsigned int __fastcall__ mul20 (unsigned char value);/
+<tag/Description/Speed optimized function to multiply an 8 bit unsigned value by 20 to get a 16 bit result.
+<tag/Availability/cc65
+</descrip>
+</quote>
+
+<sect1>mul40<label id="mul40"><p>
+
+<quote>
+<descrip>
+<tag/Function/Multiplies argument by 40.
+<tag/Header/<tt/<ref id="cc65.h" name="cc65.h">/
+<tag/Declaration/<tt/unsigned int __fastcall__ mul40 (unsigned char value);/
+<tag/Description/Speed optimized function to multiply an 8 bit unsigned value by 40 to get a 16 bit result.
+<tag/Availability/cc65
+</descrip>
+</quote>
 
 <sect1>offsetof<label id="offsetof"><p>
 
@@ -5796,18 +5835,19 @@ calling convention.
 <tag/Function/Send a signal to the executing program.
 <tag/Header/<tt/<ref id="signal.h" name="signal.h">/
 <tag/Declaration/<tt/int __fastcall__ raise (int sig);/
-<tag/Description/<tt/raise/ sends the given signal to the program. If the
+<tag/Description/<tt/raise()/ sends the given signal to the program. If the
 program has installed a signal handler for the signal, this signal handler
 will be executed. If no handler has been installed, the default action for
 the raised signal will be taken. The function returns zero on success,
-nonzero otherwise.
+non-zero otherwise.
 <tag/Notes/<itemize>
-<item>The function is only available as fastcall function, so it may only
-be used in presence of a prototype.
+<item>The function is available only as a fastcall function,
+so it may be used only in the presence of a prototype.
 </itemize>
 <tag/Availability/ISO 9899
 <tag/See also/
 <ref id="abort" name="abort">,
+<ref id="assert" name="assert">,
 <ref id="signal" name="signal">
 <tag/Example/None.
 </descrip>
@@ -6630,6 +6670,7 @@ be used in presence of a prototype.
 <tag/Availability/ISO 9899
 <tag/See also/
 <ref id="abort" name="abort">,
+<ref id="assert" name="assert">,
 <ref id="raise" name="raise">
 <tag/Example/None.
 </descrip>
@@ -7675,24 +7716,31 @@ used in presence of a prototype.
 
 <quote>
 <descrip>
-<tag/Function/Switch to either 40 or 80 column mode.
-<tag/Header/<tt/<ref id="apple2enh.h" name="apple2enh.h">,
-<ref id="c128.h" name="c128.h">/
-<tag/Declaration/<tt/unsigned __fastcall__ videomode (unsigned Mode);/
-<tag/Description/Switch to 40 or 80 column mode depending on the argument. If
-the requested mode is already active, nothing happens. The old mode is returned
-from the call.
+<tag/Function/Switch to either 40- or 80-column text mode, or a standard
+graphics mode.
+<tag/Header/<tt/
+<ref id="apple2enh.h" name="apple2enh.h">,
+<ref id="c128.h" name="c128.h">,
+<ref id="cx16.h" name="cx16.h">/
+<tag/Declaration/
+<tt>unsigned __fastcall__ videomode (unsigned Mode); /* for apple2enh and c128 */</tt><newline>
+<tt>signed char __fastcall__ videomode (signed char Mode); /* for cx16 */</tt>
+<tag/Description/Switch to a 40- or 80-column text or graphics mode, depending
+on the argument. If the requested mode is already active, nothing happens. The
+old mode is returned from the call.
 <tag/Notes/<itemize>
-<item>The function is specific to the C128 and enhanced Apple //e.
+<item>The function is specific to the Commodore 128, the enhanced Apple //e,
+and the Commander X16.
 <item>This function replaces <ref id="toggle_videomode"
 name="toggle_videomode">.
-<item>The function is only available as fastcall function, so it may only be
-used in presence of a prototype.
+<item>The function is available as only a fastcall function, so it may be used
+only in the presence of a prototype.
 </itemize>
-<tag/Availability/C128 and enhanced Apple //e
+<tag/Availability/C128, enhanced Apple //e, and CX16
 <tag/See also/
 <ref id="fast" name="fast">,
 <ref id="isfast" name="isfast">,
+<!-- <ref id="set_tv" name="set_tv">, -->
 <ref id="slow" name="slow">,
 <ref id="toggle_videomode" name="toggle_videomode">
 <tag/Example/None.
@@ -7704,15 +7752,15 @@ used in presence of a prototype.
 
 <quote>
 <descrip>
-<tag/Function/Wait until the start of the next frame.
-<tag/Header/
-<tt/<ref id="cbm.h" name="cbm.h">/,
-<tt/<ref id="gamate.h" name="gamate.h">/,
-<tt/<ref id="nes.h" name="nes.h">/,
-<tt/<ref id="pce.h" name="pce.h">/
+<tag/Function/Wait until the start of the next video frame.
+<tag/Header/<tt/
+<ref id="cbm.h" name="cbm.h">,
+<ref id="gamate.h" name="gamate.h">,
+<ref id="nes.h" name="nes.h">,
+<ref id="pce.h" name="pce.h">/
 <tag/Declaration/<tt/void waitvsync (void);/
-<tag/Description/Wait for vertical sync to reduce flickering.
-<tag/Availability/Platforms above
+<tag/Description/Wait for vertical sync, to reduce flickering.
+<tag/Availability/Platforms served by the headers above
 <tag/Example/None.
 </descrip>
 </quote>
