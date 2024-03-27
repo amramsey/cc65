@@ -60,8 +60,14 @@
 /* Name of program file */
 const char* ProgramFile;
 
-/* exit simulator after MaxCycles Cycles */
-unsigned long MaxCycles;
+/* count of total cycles executed */
+unsigned long long TotalCycles = 0;
+
+/* exit simulator after MaxCycles Cccles */
+unsigned long long MaxCycles = 0;
+
+/* countdown from MaxCycles */
+unsigned long long RemainCycles;
 
 /* Header signature 'sim65' */
 static const unsigned char HeaderSignature[] = {
@@ -70,7 +76,6 @@ static const unsigned char HeaderSignature[] = {
 #define HEADER_SIGNATURE_LENGTH (sizeof(HeaderSignature)/sizeof(HeaderSignature[0]))
 
 static const unsigned char HeaderVersion = 2;
-
 
 
 /*****************************************************************************/
@@ -139,7 +144,7 @@ static void OptQuitXIns (const char* Opt attribute ((unused)),
                         const char* Arg attribute ((unused)))
 /* quit after MaxCycles cycles */
 {
-    MaxCycles = strtoul(Arg, NULL, 0);
+    MaxCycles = strtoull(Arg, NULL, 0);
 }
 
 static unsigned char ReadProgramFile (void)
@@ -172,10 +177,16 @@ static unsigned char ReadProgramFile (void)
 
     /* Get the CPU type from the file header */
     if ((Val = fgetc(F)) != EOF) {
-        if (Val != CPU_6502 && Val != CPU_65C02) {
+        switch (Val) {
+        case CPU_6502:
+        case CPU_65C02:
+        case CPU_6502X:
+            CPU = Val;
+            break;
+
+        default:
             Error ("'%s': Invalid CPU type", ProgramFile);
         }
-        CPU = Val;
     }
 
     /* Get the address of sp from the file header */
@@ -184,6 +195,7 @@ static unsigned char ReadProgramFile (void)
     }
 
     /* Get load address */
+    Val2 = 0; /* suppress uninitialized variable warning */
     if (((Val = fgetc(F)) == EOF) ||
         ((Val2 = fgetc(F)) == EOF)) {
         Error ("'%s': Header missing load address", ProgramFile);
@@ -236,6 +248,7 @@ int main (int argc, char* argv[])
 
     unsigned I;
     unsigned char SPAddr;
+    unsigned int Cycles;
 
     /* Initialize the cmdline module */
     InitCmdLine (&argc, &argv, "sim65");
@@ -298,18 +311,24 @@ int main (int argc, char* argv[])
     MemInit ();
 
     SPAddr = ReadProgramFile ();
-
     ParaVirtInit (I, SPAddr);
 
     Reset ();
 
+    RemainCycles = MaxCycles;
     while (1) {
-        ExecuteInsn ();
-        if (MaxCycles && (GetCycles () >= MaxCycles)) {
-            ErrorCode (SIM65_ERROR_TIMEOUT, "Maximum number of cycles reached.");
+        Cycles = ExecuteInsn ();
+        TotalCycles += Cycles;
+        if (MaxCycles) {
+            if (Cycles > RemainCycles) {
+                ErrorCode (SIM65_ERROR_TIMEOUT, "Maximum number of cycles reached.");
+            }
+            RemainCycles -= Cycles;
         }
     }
 
-    /* Return an apropriate exit code */
-    return EXIT_SUCCESS;
+    /* Unreachable. sim65 program must exit through paravirtual PVExit
+    ** or timeout from MaxCycles producing an error.
+    */
+    return SIM65_ERROR;
 }
